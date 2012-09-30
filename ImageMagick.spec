@@ -7,7 +7,7 @@
 Summary:	Image display, conversion, and manipulation under X
 Name:		ImageMagick
 Version:	%{ver}%{?pver:.%{pver}}
-Release:	2
+Release:	1
 Epoch:		1
 License:	Apache-like
 Group:		X11/Applications/Graphics
@@ -22,15 +22,14 @@ BuildRequires:	OpenEXR-devel
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	bzip2-devel
+BuildRequires:	djvulibre-devel
 BuildRequires:	expat-devel
 BuildRequires:	freetype-devel
 BuildRequires:	gd-devel
 BuildRequires:	graphviz-devel
-BuildRequires:	jbigkit-devel
-BuildRequires:	lcms-devel
+BuildRequires:	lcms2-devel
 BuildRequires:	libgomp-devel
 BuildRequires:	libjpeg-devel
-BuildRequires:	liblqr-1-devel
 BuildRequires:	libltdl-devel
 BuildRequires:	libpng-devel
 BuildRequires:	librsvg-devel
@@ -129,12 +128,11 @@ Requires:	%{name} = %{epoch}:%{version}-%{release}
 IM coder modules.
 
 %prep
-%setup -qcTn %{name}-%{ver}-%{pver}
-xz -dc %{SOURCE0} | tar xf - -C ..
+%setup -qn %{name}-%{ver}-%{pver}
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
+#%patch3 -p1
 
 %{__perl} -pi -e 's,lib/graphviz,%{_lib}/graphviz,' configure.ac
 find -type f -exec perl -pi -e 's=!/usr/local/bin/perl=!/usr/bin/perl='  {} \;
