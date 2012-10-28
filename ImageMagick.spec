@@ -180,11 +180,11 @@ rm -f $RPM_BUILD_ROOT%{modulesdir}/{coders,filters}/*.a
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post   libs -p /sbin/ldconfig
-%postun libs -p /sbin/ldconfig
+%post   libs -p /usr/sbin/ldconfig
+%postun libs -p /usr/sbin/ldconfig
 
-%post   c++ -p /sbin/ldconfig
-%postun c++ -p /sbin/ldconfig
+%post   c++ -p /usr/sbin/ldconfig
+%postun c++ -p /usr/sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
