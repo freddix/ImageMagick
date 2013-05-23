@@ -1,6 +1,6 @@
 %include	/usr/lib/rpm/macros.perl
 
-%define		ver		6.7.9
+%define		ver		6.8.5
 %define		pver		7
 %define		QuantumDepth	16
 
@@ -12,7 +12,7 @@ Epoch:		1
 License:	Apache-like
 Group:		X11/Applications/Graphics
 Source0:	http://www.imagemagick.org/download/%{name}-%{ver}-%{pver}.tar.xz
-# Source0-md5:	f90b2fb23e7c4d4a09f9be3173203fb7
+# Source0-md5:	b229be052bbce599c32c36c10bd49477
 Patch0:		%{name}-libpath.patch
 Patch1:		%{name}-ac.patch
 Patch2:		%{name}-ldflags.patch
@@ -37,6 +37,7 @@ BuildRequires:	libstdc++-devel
 BuildRequires:	libtiff-devel
 BuildRequires:	libtool
 BuildRequires:	libxml2-devel
+BuildRequires:	libwebp-devel
 BuildRequires:	perl-devel
 BuildRequires:	rpm-perlprov
 BuildRequires:	xorg-libXext-devel
@@ -147,7 +148,6 @@ touch www/Magick++/NEWS.html www/Magick++/ChangeLog.html
 %{__autoconf}
 %{__automake}
 %configure \
-	--disable-ltdl-install				\
 	--disable-silent-rules				\
 	--disable-static				\
 	--enable-fast-install				\
@@ -159,7 +159,9 @@ touch www/Magick++/NEWS.html www/Magick++/ChangeLog.html
 	--with-perl-options="INSTALLDIRS=vendor"	\
 	--with-perl=%{__perl}				\
 	--with-quantum-depth=%{QuantumDepth}		\
+	--with-rsvg					\
 	--with-threads					\
+	--with-webp					\
 	--with-x					\
 	--without-dps					\
 	--without-fpx					\
@@ -189,10 +191,10 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 
-%dir %{_datadir}/ImageMagick-%{ver}
+%dir %{_datadir}/ImageMagick-*
 %dir %{_libdir}/ImageMagick-%{ver}
-%dir %{_libdir}/ImageMagick-%{ver}/config
-%dir %{_sysconfdir}/ImageMagick
+%dir %{_libdir}/ImageMagick-%{ver}/config-*
+%dir %{_sysconfdir}/ImageMagick-*
 %dir %{modulesdir}
 %dir %{modulesdir}/coders
 %dir %{modulesdir}/filters
@@ -209,9 +211,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/montage
 %attr(755,root,root) %{_bindir}/stream
 
-%{_libdir}/ImageMagick-%{ver}/config/*.xml
-
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/ImageMagick/*.xml
+%{_datadir}/ImageMagick-6/*.xml
+%{_libdir}/ImageMagick-%{ver}/config-*/*.xml
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/ImageMagick-*/*.xml
 
 %{_mandir}/man1/[Iacdims]*
 
@@ -229,51 +231,65 @@ rm -rf $RPM_BUILD_ROOT
 %files libs
 %defattr(644,root,root,755)
 %doc ChangeLog LICENSE
-%attr(755,root,root) %ghost %{_libdir}/libMagickCore.so.?
-%attr(755,root,root) %ghost %{_libdir}/libMagickWand.so.?
-%attr(755,root,root) %{_libdir}/libMagickCore.so.*.*.*
-%attr(755,root,root) %{_libdir}/libMagickWand.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libMagickCore-*.so.?
+%attr(755,root,root) %ghost %{_libdir}/libMagickWand-*.so.?
+%attr(755,root,root) %{_libdir}/libMagickCore-*.so.*.*.*
+%attr(755,root,root) %{_libdir}/libMagickWand-*.so.*.*.*
 
 %files devel
 %defattr(644,root,root,755)
 %doc %{_docdir}/%{name}-devel-%{version}
-%dir %{_includedir}/%{name}
+%dir %{_includedir}/ImageMagick-*
 %attr(755,root,root) %{_bindir}/Magick-config
 %attr(755,root,root) %{_bindir}/MagickCore-config
 %attr(755,root,root) %{_bindir}/MagickWand-config
 %attr(755,root,root) %{_bindir}/Wand-config
-%attr(755,root,root) %{_libdir}/libMagickCore.so
-%attr(755,root,root) %{_libdir}/libMagickWand.so
-%{_includedir}/%{name}/magick
-%{_includedir}/%{name}/wand
+%attr(755,root,root) %{_libdir}/libMagickCore-*.so
+%attr(755,root,root) %{_libdir}/libMagickWand-*.so
+%{_includedir}/ImageMagick-*/magick
+%{_includedir}/ImageMagick-*/wand
+%{_pkgconfigdir}/ImageMagick-6.*.pc
 %{_pkgconfigdir}/ImageMagick.pc
+%{_pkgconfigdir}/MagickCore-6.*.pc
 %{_pkgconfigdir}/MagickCore.pc
+%{_pkgconfigdir}/MagickWand-6.*.pc
 %{_pkgconfigdir}/MagickWand.pc
+%{_pkgconfigdir}/Wand-6.*.pc
 %{_pkgconfigdir}/Wand.pc
 %{_mandir}/man1/Magick-config.1*
+%{_mandir}/man1/MagickCore-config.1*
+%{_mandir}/man1/MagickWand-config.1*
 %{_mandir}/man1/Wand-config.1*
 
 %files perl
 %defattr(644,root,root,755)
-%{perl_vendorarch}/Image/*
+%dir %{perl_vendorarch}/Image/Magick
 %dir %{perl_vendorarch}/auto/Image/Magick
-%{perl_vendorarch}/auto/Image/Magick/autosplit.ix
-%{perl_vendorarch}/auto/Image/Magick/Magick.bs
+%dir %{perl_vendorarch}/auto/Image/Magick/Q%{QuantumDepth}
+%attr(755,root,root) %{perl_vendorarch}/auto/Image/Magick/Q%{QuantumDepth}/Q%{QuantumDepth}.so
 %attr(755,root,root) %{perl_vendorarch}/auto/Image/Magick/Magick.so
-%{_mandir}/man3/Image::Magick.*
+%{perl_vendorarch}/Image/Magick.pm
+%{perl_vendorarch}/Image/Magick/Q%{QuantumDepth}.pm
+%{perl_vendorarch}/auto/Image/Magick/Q%{QuantumDepth}/Q%{QuantumDepth}.bs
+%{perl_vendorarch}/auto/Image/Magick/Q%{QuantumDepth}/autosplit.ix
+%{perl_vendorarch}/auto/Image/Magick/Magick.bs
+%{perl_vendorarch}/auto/Image/Magick/autosplit.ix
+%{_mandir}/man3/Image::Magick*
 
 %files c++
 %defattr(644,root,root,755)
-%attr(755,root,root) %ghost %{_libdir}/libMagick++.so.?
-%attr(755,root,root) %{_libdir}/libMagick++.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libMagick++-*.so.?
+%attr(755,root,root) %{_libdir}/libMagick++-*.so.*.*.*
 
 %files c++-devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/Magick++-config
-%attr(755,root,root) %{_libdir}/libMagick++.so
-%{_includedir}/%{name}/Magick++
-%{_includedir}/%{name}/Magick++.h
+%attr(755,root,root) %{_libdir}/libMagick++-*.so
+%{_includedir}/ImageMagick-*/Magick++
+%{_includedir}/ImageMagick-*/Magick++.h
+%{_pkgconfigdir}/ImageMagick++-6.*.pc
 %{_pkgconfigdir}/ImageMagick++.pc
+%{_pkgconfigdir}/Magick++-6.*.pc
 %{_pkgconfigdir}/Magick++.pc
 %{_mandir}/man1/Magick++-config.1*
 
