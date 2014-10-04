@@ -1,7 +1,7 @@
 %include	/usr/lib/rpm/macros.perl
 
-%define		ver		6.8.8
-%define		pver		6
+%define		ver		6.8.9
+%define		pver		8
 %define		QuantumDepth	16
 
 Summary:	Image display, conversion, and manipulation under X
@@ -12,7 +12,7 @@ Epoch:		1
 License:	Apache-like
 Group:		X11/Applications/Graphics
 Source0:	http://www.imagemagick.org/download/%{name}-%{ver}-%{pver}.tar.xz
-# Source0-md5:	3b9be99a2f49e60bc2acfde0c2bbe0c6
+# Source0-md5:	25821079b2da1f1973de30526da55e59
 Patch0:		%{name}-libpath.patch
 Patch1:		%{name}-ac.patch
 Patch2:		%{name}-ldflags.patch
@@ -24,6 +24,7 @@ BuildRequires:	automake
 BuildRequires:	bzip2-devel
 BuildRequires:	djvulibre-devel
 BuildRequires:	expat-devel
+BuildRequires:	fftw3-devel
 BuildRequires:	freetype-devel
 BuildRequires:	gd-devel
 BuildRequires:	graphviz-devel
@@ -36,8 +37,8 @@ BuildRequires:	librsvg-devel
 BuildRequires:	libstdc++-devel
 BuildRequires:	libtiff-devel
 BuildRequires:	libtool
-BuildRequires:	libxml2-devel
 BuildRequires:	libwebp-devel
+BuildRequires:	libxml2-devel
 BuildRequires:	perl-devel
 BuildRequires:	rpm-perlprov
 BuildRequires:	xorg-libXext-devel
@@ -177,7 +178,7 @@ install -d $RPM_BUILD_ROOT%{_examplesdir}/%{name}-perl
 	DESTDIR=$RPM_BUILD_ROOT \
 	pkgdocdir=%{_docdir}/%{name}-devel-%{version}
 
-rm -f $RPM_BUILD_ROOT%{modulesdir}/{coders,filters}/*.a
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/*.la
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -270,9 +271,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{perl_vendorarch}/auto/Image/Magick/Magick.so
 %{perl_vendorarch}/Image/Magick.pm
 %{perl_vendorarch}/Image/Magick/Q%{QuantumDepth}.pm
-%{perl_vendorarch}/auto/Image/Magick/Q%{QuantumDepth}/Q%{QuantumDepth}.bs
 %{perl_vendorarch}/auto/Image/Magick/Q%{QuantumDepth}/autosplit.ix
-%{perl_vendorarch}/auto/Image/Magick/Magick.bs
 %{perl_vendorarch}/auto/Image/Magick/autosplit.ix
 %{_mandir}/man3/Image::Magick*
 
